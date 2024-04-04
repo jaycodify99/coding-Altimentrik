@@ -1,1 +1,23 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, mean, median, stddev
 
+# Create a SparkSession
+spark = SparkSession.builder.appName("TransactionStatistics").getOrCreate()
+
+# Define path to your data file (replace with your actual path)
+data_path = "path/to/your/data.csv"
+
+# Read the data file as a DataFrame
+df = spark.read.option("header", True).csv(data_path)
+
+# Select relevant columns for analysis (assuming columns named 'transaction_amount' and 'customer_id')
+selected_df = df.select("transaction_amount", "customer_id")
+
+# Calculate summary statistics
+summary_stats = selected_df.describe(["transaction_amount"])
+
+# Display the summary statistics
+summary_stats.show()
+
+# Stop the SparkSession
+spark.stop()
