@@ -1,0 +1,19 @@
+from airflow import DAG
+from airflow.providers.databricks.operators.databricks import DatabricksRunNowOperator
+from airflow.utils.dates import days_ago
+
+# DAG definition
+default_args = {
+    'owner': 'airflow',
+    'start_date': days_ago(1),
+    'schedule_interval': '@daily',
+}
+
+with DAG('daily_data_processing', default_args=default_args) catchup=False as dag:
+
+    # Databricks notebook task
+    databricks_task = DatabricksRunNowOperator(
+        task_id='databricks_notebook_task',
+        notebook_path='/path/to/your/databricks/notebook',
+        cluster_id='your_databricks_cluster_id',
+    )
