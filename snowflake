@@ -1,0 +1,34 @@
+CREATE OR REPLACE STAGE my_csv_stage
+URL = 's3://your-bucket/data'
+CREDENTIALS = (AWS_ACCESS_KEY_ID = 'your_access_key', AWS_SECRET_ACCESS_KEY = 'your_secret_key')
+FILE_FORMAT = (TYPE = CSV, FIELD_DELIMITER = ',')
+;
+
+COPY INTO temporary_data
+FROM @my_csv_stage
+FILE_FORMAT = (TYPE = CSV, FIELD_DELIMITER = ',')
+;
+
+#Data transformation :
+SELECT *
+FROM temporary_data
+WHERE amount > 100;
+
+ALTER TABLE temporary_data
+ADD COLUMN discount DECIMAL(10,2) AS (price * 0.2);
+
+
+#Load to target table :
+
+CREATE OR REPLACE TABLE final_data (
+  id INT PRIMARY KEY,
+  product_name VARCHAR(100),
+  price DECIMAL(10,2),
+  processed_flag BOOLEAN,
+  discount DECIMAL(10,2)
+);
+
+COPY INTO final_data
+FROM temporary_data;
+
+DROP TABLE temporary_data;
